@@ -1,4 +1,3 @@
-![Use Dev](.github/thumb.png)
 # Use Dev - Loja de Produtos para Desenvolvedores
 
 Aplicação web desenvolvida em React para uma loja virtual especializada em produtos para desenvolvedores. O projeto permite navegar por produtos, gerenciar carrinho de compras e visualizar detalhes dos produtos.
