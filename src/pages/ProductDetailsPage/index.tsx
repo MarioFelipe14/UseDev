@@ -3,18 +3,19 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import type { Product } from "../../common/types/product";
 import { PRODUCTS_BASE_URL } from "../../common/constants/endpoints";
-import { useCart } from "../../contexts/CartContext";
 import StatusHandler from "../../common/utils/statusHandler";
 import Typography from "../../components/Typography";
 import ProductDetail from "../../components/ProductDetail/ProductDetail";
 import Styles from "./ProductDetailsPage.module.css";
+import { useBoundStore } from "../../stores/bound.store";
 
 function ProductDetailsPage() {
-  const { addToCart } = useCart();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const addToCart = useBoundStore(state => state.addItem);
 
   useEffect(() => {
     axios

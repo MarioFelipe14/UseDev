@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../../contexts/CartContext";
 import { ShoppingBagIcon } from "../../common/icons/ShoppingBagIcon";
 import Button from "../../components/Button";
 import Divider from "../../components/Divider";
@@ -8,6 +7,7 @@ import Typography from "../../components/Typography";
 import Styles from "./CartPage.module.css";
 import { useReducer, useState } from "react";
 import { useToast } from "../../contexts/toast/ToastContext";
+import { useBoundStore } from "../../stores/bound.store";
 
 type CartState = {
   quantities: Record<number, number>;
@@ -66,7 +66,8 @@ function cartReducer(state: CartState, action: CartAction) {
 }
 
 const CartPage = () => {
-  const { cartItems, removeFromCart } = useCart();
+  const cartItems = useBoundStore(state => state.items);
+  const removeFromCart = useBoundStore(state => state.removeItem);
   const { showToast } = useToast();
 
   const [couponInput, setCouponInput] = useState("");

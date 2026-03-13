@@ -15,6 +15,65 @@ class CartStore {
 
     private listeners = new Set<Listener> ();
 
+    private channel: BroadcastChannel | null = null;
+
+    private isExternalUpdate = false;
+
+    private readonly STORAGE_KEY = 'cart-store';
+
+    private readonly CHANNEL_NAME = 'cart-sync';
+
+    constructor(){
+        this.loadFromStorage();
+
+        if(typeof BroadcastChannel !== "undefined"){
+            this.channel = new BroadcastChannel(this.CHANNEL_NAME);
+            this.channel.onmessage= (event:MessageEvent<CartState>) => {
+                console.log(`Sync de outra aba: ${event.data}`)
+
+                this.isExternalUpdate = true;
+
+                this.state = event.data;
+
+                this.listeners.forEach(listener => listener());
+
+                this.isExternalUpdate = false;
+            }
+        } else {
+            console.error("BroadcastChannel não disponível.");
+        }
+    }
+
+    private loadFromStorage = ():void => {
+
+        try {
+            const stored = localStorage.getItem(this.STORAGE_KEY);
+
+            if(stored){
+                const parsed = JSON.parse(stored) as CartState;
+                this.state = parsed;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    private saveToStorage = ():void => {
+
+        try {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    private syncWithOtherTabs = ():void => {
+        if(!this.isExternalUpdate && this.channel){
+            console.log('Enviando dados para outras abas')
+            this.channel.postMessage(this.state);
+        }
+    }
+
     getState = (): CartState => {
         return this.state;
     }
@@ -22,6 +81,9 @@ class CartStore {
     setState = (partial:Partial<CartState>):void => {
         const nextState = { ...this.state, ...partial };
         this.state = nextState;
+
+        this.saveToStorage();
+        this.syncWithOtherTabs();
 
         this.listeners.forEach(listener => listener());
     }
