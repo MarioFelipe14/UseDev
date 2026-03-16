@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Category } from "../../common/types/category";
-import type { Product } from "../../common/types/product";
 import {
   CATEGORIES_BASE_URL,
-  PRODUCTS_BASE_URL,
 } from "../../common/constants/endpoints";
 import StatusHandler from "../../common/utils/statusHandler";
 import Button from "../../components/Button";
@@ -13,14 +11,12 @@ import HeroBanner from "../../components/HeroBanner";
 import Newsletter from "../../components/Newsletter";
 import ProductList from "../../components/ProductList";
 import Typography from "../../components/Typography";
+import { useProductsQuery } from "../../queries/useProductsQuery";
 
 function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
-  const [productsError, setProductsError] = useState<string | null>(null);
 
   const handleSubscribe = (email: string) => {
     console.log(`Usuário inscrito com o email: ${email}`);
@@ -30,7 +26,7 @@ function HomePage() {
     axios
       .get(CATEGORIES_BASE_URL)
       .then((response) => {
-        setCategories(response.data.categories);
+        setCategories(response.data);
         setIsLoadingCategories(false);
       })
       .catch(() => {
@@ -39,18 +35,23 @@ function HomePage() {
       });
   }, []);
 
-  useEffect(() => {
-    axios
-      .get(PRODUCTS_BASE_URL)
-      .then((response) => {
-        setProducts(response.data.products);
-        setIsLoadingProducts(false);
-      })
-      .catch(() => {
-        setProductsError("Erro ao carregar produtos.");
-        setIsLoadingProducts(false);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get(PRODUCTS_BASE_URL)
+  //     .then((response) => {
+  //       setProducts(response.data);
+  //       setIsLoadingProducts(false);
+  //     })
+  //     .catch(() => {
+  //       setProductsError("Erro ao carregar produtos.");
+  //       setIsLoadingProducts(false);
+  //     });
+  // }, []);
+
+  const { data: products,
+    isPending: isPendingProducts,
+    isError: isErrorProducts }
+    = useProductsQuery()
 
   return (
     <>
@@ -73,8 +74,8 @@ function HomePage() {
           <Categories categories={categories} />
         </StatusHandler>
 
-        <StatusHandler isLoading={isLoadingProducts} error={productsError}>
-          <ProductList title="Promoções especiais" products={products} />
+        <StatusHandler isLoading={isPendingProducts} error={isErrorProducts}>
+          <ProductList title="Promoções especiais" products={products || []} />
         </StatusHandler>
       </main>
       <Newsletter onSubscribe={handleSubscribe} />
