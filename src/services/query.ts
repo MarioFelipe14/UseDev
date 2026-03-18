@@ -1,10 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 
 
-
 export const queryKeys = {
         products: ['products'],
-        ProductDetail: (id: number) => ["products","detail", id] 
+        ProductDetail: (id: number) => ["products","detail", id],
+        categories: ['categories'],
 }
 
 export const queryClient= new QueryClient({

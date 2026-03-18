@@ -1,9 +1,3 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import type { Category } from "../../common/types/category";
-import {
-  CATEGORIES_BASE_URL,
-} from "../../common/constants/endpoints";
 import StatusHandler from "../../common/utils/statusHandler";
 import Button from "../../components/Button";
 import Categories from "../../components/Categories";
@@ -12,46 +6,38 @@ import Newsletter from "../../components/Newsletter";
 import ProductList from "../../components/ProductList";
 import Typography from "../../components/Typography";
 import { useProductsQuery } from "../../queries/useProductsQuery";
+import { useCategoriesQuery } from "../../queries/useCategoriesQuery";
+import { useProductMutation } from "../../mutations/useProductMutation";
+
+const newProduct = {
+  "id": Date.now(),
+  "label": `Camiseta ${Date.now()}`,
+  "price": 28,
+  "colors": [
+    "Bege",
+    "Branca",
+    "Cinza"
+  ],
+  "imageSrc": "https://raw.githubusercontent.com/gss-patricia/use-dev-assets/refs/heads/main/cards-produtos/cards-home/desktop-e-tablet/capy.png",
+  "description": "Camiseta 100% algodão."
+}
 
 function HomePage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [categoriesError, setCategoriesError] = useState<string | null>(null);
-
   const handleSubscribe = (email: string) => {
     console.log(`Usuário inscrito com o email: ${email}`);
   };
 
-  useEffect(() => {
-    axios
-      .get(CATEGORIES_BASE_URL)
-      .then((response) => {
-        setCategories(response.data);
-        setIsLoadingCategories(false);
-      })
-      .catch(() => {
-        setCategoriesError("Erro ao carregar categorias.");
-        setIsLoadingCategories(false);
-      });
-  }, []);
-
-  // useEffect(() => {
-  //   axios
-  //     .get(PRODUCTS_BASE_URL)
-  //     .then((response) => {
-  //       setProducts(response.data);
-  //       setIsLoadingProducts(false);
-  //     })
-  //     .catch(() => {
-  //       setProductsError("Erro ao carregar produtos.");
-  //       setIsLoadingProducts(false);
-  //     });
-  // }, []);
+  const { data: categories,
+    isPending: isLoadingCategories,
+    isError: categoriesError } =
+    useCategoriesQuery()
 
   const { data: products,
     isPending: isPendingProducts,
-    isError: isErrorProducts }
-    = useProductsQuery()
+    isError: isErrorProducts } =
+    useProductsQuery()
+
+  const { mutate: createProduct } = useProductMutation()
 
   return (
     <>
@@ -68,10 +54,15 @@ function HomePage() {
           size="large"
           text="Ver as novidades!"
         />
+        <Button
+          onClick={() => createProduct(newProduct)}
+          size="large"
+          text="Adicionar!"
+        />
       </HeroBanner>
       <main className="container">
         <StatusHandler isLoading={isLoadingCategories} error={categoriesError}>
-          <Categories categories={categories} />
+          <Categories categories={categories || []} />
         </StatusHandler>
 
         <StatusHandler isLoading={isPendingProducts} error={isErrorProducts}>
