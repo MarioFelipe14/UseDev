@@ -1,5 +1,5 @@
 import {  useSyncExternalStore } from "react";
-import { prefsStore } from "../../stores/prefs.store";
+import { prefsStore } from "../stores/prefs.store";
 
 
 export function usePrefs() {

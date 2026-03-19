@@ -3,7 +3,7 @@ import type { Product } from "../../common/types/product";
 import Card from "../Card";
 import Typography from "../Typography";
 import Styles from "./ProductList.module.css";
-import { usePrefs } from "../hooks/usePrefs";
+import { usePrefs } from "../../hooks/usePrefs";
 
 type ProductListProps = {
   title: string;
